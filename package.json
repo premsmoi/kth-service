@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./dist/index.js",
+    "start": "rm -rf dist && rollup -c && node ./dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@rollup/plugin-typescript": "^8.3.2",
+    "rollup": "^2.75.5",
+    "rollup-plugin-terser": "^7.0.2",
     "socket.io": "^4.5.1",
     "socket.io-client": "^4.5.1",
     "uuid": "^8.3.2",

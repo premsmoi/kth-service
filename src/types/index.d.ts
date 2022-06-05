@@ -1,11 +1,17 @@
-type Method = 'JOIN_ROOM' | 'EXIT_ROOM';
+type Method = 'JOIN_ROOM' | 'EXIT_ROOM' | 'UPDATE_ROOM';
   
 interface JoinRoomData {
   playerName: string;
   roomId: string;
 }
 
-interface RequestData<T> {
+interface UpdateRoomData {
+  roomId: string;
+  players: string[];
+  timer: number;
+}
+
+interface Message<T> {
   method: Method;
   data: T;
 }

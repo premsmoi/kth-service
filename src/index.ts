@@ -1,21 +1,17 @@
 import { connection as Connection, IUtf8Message, server as WebSocketServer } from 'websocket';
 import * as http from 'http';
 import * as uuid from 'uuid';
+import { Room } from './Room';
 
-interface CustomConnection extends Connection {
+export interface CustomConnection extends Connection {
   sessionId?: string;
   roomId?: string;
   playerName?: string;
 };
 
-interface Room {
-  id: string;
-  connections: CustomConnection[];
-}
+const defaultRoom: Room = new Room(3, 6000);
 
-const defaultRoom: Room = { id: '123', connections: [] };
 const rooms: Room[] = [defaultRoom];
-
 
 const server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -47,9 +43,7 @@ const joinRoom = (connection: CustomConnection, data: JoinRoomData) => {
 
   if (!room) return;
 
-  room.connections.push(connection);
-
-  console.log({ rooms, length: room.connections.length });
+  room.addPlayer(connection);
 };
 
 const handleRequestMessage = (connection: CustomConnection, method: Method, data: any) => {
@@ -66,7 +60,7 @@ wsServer.on('connect', (connection: CustomConnection) => {
   console.log('There is a client connected.', connection.sessionId);
 
   connection.on('message', (message) => {
-    const requestData: RequestData<any> = JSON.parse((<IUtf8Message>message).utf8Data);
+    const requestData: Message<any> = JSON.parse((<IUtf8Message>message).utf8Data);
     console.log({ requestData });
 
     const { method, data } = requestData;
@@ -80,7 +74,7 @@ wsServer.on('close', (connection: CustomConnection) => {
   const room = rooms.find(room => room.id === connection.roomId);
 
   if (room) {
-    room.connections = room.connections.filter(c => c.sessionId !== sessionId);
+    room.removePlayer(connection);
   }
 
   console.log('This connection has been closed.', sessionId);
