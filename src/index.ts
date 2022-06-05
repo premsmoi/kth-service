@@ -9,7 +9,7 @@ export interface CustomConnection extends Connection {
   playerName?: string;
 };
 
-const defaultRoom: Room = new Room(3, 6000);
+const defaultRoom: Room = new Room(2, 5000);
 
 const rooms: Room[] = [defaultRoom];
 
@@ -46,10 +46,21 @@ const joinRoom = (connection: CustomConnection, data: JoinRoomData) => {
   room.addPlayer(connection);
 };
 
+const startRound = (data: StartRoundData) => {
+  const room = rooms.find(room => room.id === data.roomId);
+
+  if (!room) return;
+
+  room.goNextRound();
+}
+
 const handleRequestMessage = (connection: CustomConnection, method: Method, data: any) => {
   switch(method) {
     case 'JOIN_ROOM':
       joinRoom(connection, data);
+      break;
+    case 'START_ROUND':
+      startRound(data)
       break;
   }
 };

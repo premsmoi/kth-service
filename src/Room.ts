@@ -8,6 +8,8 @@ export class Room {
     totalRound: number;
     timer: number;
     timeLimit: number;
+    isPlaying: boolean = false;
+    isFinish: boolean = false;
 
     constructor(totalRound: number, timeLimit: number) {
         this.id = '123';
@@ -42,6 +44,8 @@ export class Room {
                 currentRound: this.currentRound,
                 timeLimit: this.timeLimit,
                 timer: this.timer,
+                isPlaying: this.isPlaying,
+                isFinish: this.isFinish,
             }
         };
 
@@ -57,12 +61,22 @@ export class Room {
             this.broadcastData();
 
             if (this.timer <= 0) {
+                this.isPlaying = false;
+
+                if (this.currentRound === this.totalRound) {
+                    this.isFinish = true;
+                    this.broadcastData();
+                }
+
                 clearInterval(timer);
             }
         }, 1000);
     };
 
     goNextRound = () => {
+        if (this.isPlaying || this.isFinish) return;
+
+        this.isPlaying = true;
         this.currentRound++;
         this.timer = this.timeLimit;
         this.startTimer();

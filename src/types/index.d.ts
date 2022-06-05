@@ -1,14 +1,12 @@
-type Method = 'JOIN_ROOM' | 'EXIT_ROOM' | 'UPDATE_ROOM';
+type Method = 'JOIN_ROOM' | 'EXIT_ROOM' | 'UPDATE_ROOM' | 'START_ROUND';
   
 interface JoinRoomData {
   playerName: string;
   roomId: string;
 }
 
-interface UpdateRoomData {
-  roomId: string;
-  players: string[];
-  timer: number;
+interface StartRoundData {
+  roomId: string
 }
 
 interface Message<T> {
