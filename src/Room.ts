@@ -1,15 +1,21 @@
-import { CustomConnection } from "./index";
+import { Player } from "./Player";
+
+interface PlayerData {
+    playerId: string;
+    roomId: string;
+    playerName: string;
+}
 
 export class Room {
     id: string;
-    connections: CustomConnection[] = [];
-    players: string[] = [];
+    players: Player[] = [];
     currentRound: number = 0;
     totalRound: number;
     timer: number;
     timeLimit: number;
     isPlaying: boolean = false;
     isFinish: boolean = false;
+    scores: Record<string, number[]> = {};
 
     constructor(totalRound: number, timeLimit: number) {
         this.id = '123';
@@ -18,28 +24,31 @@ export class Room {
         this.timer = timeLimit;
     }
 
-    addPlayer = (connection: CustomConnection) => {
-        this.connections.push(connection);
-
-        const playerName = connection.playerName || 'Unknown';
-        this.players.push(playerName);
+    addPlayer = (player: Player) => {
+        this.players.push(player);
 
         this.broadcastData();
     };
 
-    removePlayer = (connection: CustomConnection) => {
-        this.connections = this.connections.filter(c => c.sessionId !== connection.sessionId);
-        this.players = this.players.filter(player => player !== connection.playerName);
+    addScore = (playerId: string, score: number) => {
+        this.scores[playerId].push(score);
+    };
+
+    removePlayer = (playerId: string) => {
+        this.players = this.players.filter(player => player.playerId !== playerId);
 
         this.broadcastData();
     };
 
     broadcastData = () => {
-        const updateRoomMessage: Message<Partial<Room>> = {
+        const updateRoomMessage: Message<any> = {
             method: 'UPDATE_ROOM',
             data: {
                 id: this.id,
-                players: this.players,
+                players: this.players.map(player => ({
+                    playerName: player.playerName,
+                    playerId: player.playerId
+                })),
                 totalRound: this.totalRound,
                 currentRound: this.currentRound,
                 timeLimit: this.timeLimit,
@@ -49,8 +58,8 @@ export class Room {
             }
         };
 
-        this.connections.forEach(connection => {
-            connection.sendUTF(JSON.stringify(updateRoomMessage));
+        this.players.forEach(player => {
+            player.sendUTF(JSON.stringify(updateRoomMessage));
         });
     };
 
