@@ -1,0 +1,22 @@
+{
+  "name": "kth-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node ./dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "^4.5.1",
+    "socket.io-client": "^4.5.1",
+    "uuid": "^8.3.2",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.4",
+    "@types/websocket": "^1.0.5"
+  }
+}
