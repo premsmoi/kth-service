@@ -1,17 +1,10 @@
 import { Player } from "./Player";
 
-interface PlayerData {
-    playerId: string;
-    roomId: string;
-    playerName: string;
-}
-
 export class Room {
     id: string;
     players: Player[] = [];
     currentRound: number = 0;
     totalRound: number;
-    timer: number;
     timeLimit: number;
     isPlaying: boolean = false;
     isFinish: boolean = false;
@@ -21,7 +14,6 @@ export class Room {
         this.id = '123';
         this.totalRound = totalRound;
         this.timeLimit = timeLimit;
-        this.timer = timeLimit;
     }
 
     addPlayer = (player: Player) => {
@@ -52,7 +44,6 @@ export class Room {
                 totalRound: this.totalRound,
                 currentRound: this.currentRound,
                 timeLimit: this.timeLimit,
-                timer: this.timer,
                 isPlaying: this.isPlaying,
                 isFinish: this.isFinish,
             }
@@ -63,31 +54,18 @@ export class Room {
         });
     };
 
-    startTimer = () => {
-        let timer = setInterval(() => {
-            this.timer -= 1000;
-
-            this.broadcastData();
-
-            if (this.timer <= 0) {
-                this.isPlaying = false;
-
-                if (this.currentRound === this.totalRound) {
-                    this.isFinish = true;
-                    this.broadcastData();
-                }
-
-                clearInterval(timer);
-            }
-        }, 1000);
-    };
-
-    goNextRound = () => {
+    startRound = () => {
         if (this.isPlaying || this.isFinish) return;
 
         this.isPlaying = true;
         this.currentRound++;
-        this.timer = this.timeLimit;
-        this.startTimer();
-    }
+
+        const startRoundMessage: Message<any> = {
+            method: 'START_ROUND',
+        };
+
+        this.players.forEach(player => {
+            player.sendUTF(JSON.stringify(startRoundMessage));
+        });
+    };
 }

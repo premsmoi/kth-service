@@ -11,5 +11,5 @@ interface StartRoundData {
 
 interface Message<T> {
   method: Method;
-  data: T;
+  data?: T;
 }

@@ -1,4 +1,4 @@
-import { connection as Connection, IUtf8Message, server as WebSocketServer } from 'websocket';
+import { IUtf8Message, server as WebSocketServer } from 'websocket';
 import * as http from 'http';
 import * as uuid from 'uuid';
 import { Room } from './Room';
@@ -46,7 +46,7 @@ const startRound = (data: StartRoundData) => {
 
   if (!room) return;
 
-  room.goNextRound();
+  room.startRound();
 }
 
 const handleRequestMessage = (player: Player, method: Method, data: any) => {
