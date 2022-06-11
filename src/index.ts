@@ -49,13 +49,23 @@ const startRound = (data: StartRoundData) => {
   room.startRound();
 }
 
+const eliminatePlayer = (data: EleminatePlayerData) => {
+  const room = rooms.find(room => room.id === data.roomId);
+  const message: Message<any> = { method: 'ELIMITNATE_PLAYER', data };
+
+  room?.broadcastMessage(message)
+}
+
 const handleRequestMessage = (player: Player, method: Method, data: any) => {
   switch(method) {
     case 'JOIN_ROOM':
       joinRoom(player, data);
       break;
     case 'START_ROUND':
-      startRound(data)
+      startRound(data);
+      break;
+    case 'ELIMITNATE_PLAYER':
+      eliminatePlayer(data);
       break;
   }
 };

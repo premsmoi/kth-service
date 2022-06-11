@@ -19,7 +19,7 @@ export class Room {
     addPlayer = (player: Player) => {
         this.players.push(player);
 
-        this.broadcastData();
+        this.updateRoom();
     };
 
     addScore = (playerId: string, score: number) => {
@@ -29,10 +29,10 @@ export class Room {
     removePlayer = (playerId: string) => {
         this.players = this.players.filter(player => player.playerId !== playerId);
 
-        this.broadcastData();
+        this.updateRoom();
     };
 
-    broadcastData = () => {
+    updateRoom = () => {
         const updateRoomMessage: Message<any> = {
             method: 'UPDATE_ROOM',
             data: {
@@ -49,8 +49,22 @@ export class Room {
             }
         };
 
+        this.broadcastMessage(updateRoomMessage);
+    };
+
+    eliminatePlayer = (playerId: string) => {
+        const player = this.players.find(p => p.playerId === playerId);
+
+        if (!player) return;
+
+        player.playerStatus = 'Eliminated';
+    };
+
+    broadcastMessage = (message: Message<any>) => {
         this.players.forEach(player => {
-            player.sendUTF(JSON.stringify(updateRoomMessage));
+            console.log({ message });
+            console.log(this.players.length);
+            player.sendUTF(JSON.stringify(message));
         });
     };
 
@@ -65,6 +79,7 @@ export class Room {
         };
 
         this.players.forEach(player => {
+            player.playerStatus = 'Playing';
             player.sendUTF(JSON.stringify(startRoundMessage));
         });
     };
