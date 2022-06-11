@@ -19,7 +19,7 @@ export class Room {
     addPlayer = (player: Player) => {
         this.players.push(player);
 
-        this.updateRoom();
+        this.update();
     };
 
     addScore = (playerId: string, score: number) => {
@@ -29,10 +29,17 @@ export class Room {
     removePlayer = (playerId: string) => {
         this.players = this.players.filter(player => player.playerId !== playerId);
 
-        this.updateRoom();
+        this.update();
     };
 
-    updateRoom = () => {
+    updateSetting = (totalRound: number, timeLimit: number) => {
+        this.totalRound = totalRound;
+        this.timeLimit = timeLimit;
+
+        this.update();
+    }
+
+    update = () => {
         const updateRoomMessage: Message<any> = {
             method: 'UPDATE_ROOM',
             data: {

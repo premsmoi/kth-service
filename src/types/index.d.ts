@@ -5,6 +5,12 @@ interface JoinRoomData {
   roomId: string;
 }
 
+interface UpdateRoomSettingData {
+  roomId: string;
+  totalRound: number;
+  timeLimit: number;
+}
+
 interface StartRoundData {
   roomId: string;
 }

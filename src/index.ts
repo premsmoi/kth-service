@@ -56,10 +56,19 @@ const eliminatePlayer = (data: EleminatePlayerData) => {
   room?.broadcastMessage(message)
 }
 
+const updateRoomSetting = (data: UpdateRoomSettingData) => {
+  const room = rooms.find(room => room.id === data.roomId);
+
+  room?.updateSetting(data.totalRound, data.timeLimit);
+}
+
 const handleRequestMessage = (player: Player, method: Method, data: any) => {
   switch(method) {
     case 'JOIN_ROOM':
       joinRoom(player, data);
+      break;
+    case 'UPDATE_ROOM':
+      updateRoomSetting(data);
       break;
     case 'START_ROUND':
       startRound(data);
