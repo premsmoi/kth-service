@@ -20,6 +20,7 @@ interface UpdateRoomSettingData {
 
 interface SyncRoomData {
   id: string;
+  host: string;
   players: BasePlayerData[];
   totalRound: number;
   timeLimit: number;

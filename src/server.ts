@@ -39,7 +39,7 @@ const onJoinRoom = (player: Player, data: JoinRoomData) => {
   if (!room) return;
 
   room.addPlayer(player);
-  room.syncData(player);
+  room.syncDataTo(player);
 };
 
 const onExitRoom = (player: Player) => {

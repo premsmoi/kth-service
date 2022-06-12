@@ -2,6 +2,7 @@ import { Player, toBasePlayerData } from "./Player";
 
 export class Room {
     id: string;
+    host: string = '';
     players: Player[] = [];
     currentRound: number = 0;
     totalRound: number;
@@ -17,6 +18,10 @@ export class Room {
     };
 
     addPlayer = (player: Player) => {
+        if (!this.host) {
+            this.host = player.playerId;
+        }
+
         this.players.push(player);
 
         const message: Message<BasePlayerData> = {
@@ -62,12 +67,13 @@ export class Room {
         this.broadcastMessage(message);
     };
 
-    syncData = (player: Player) => {
+    syncDataTo = (player: Player) => {
         const players = this.players.map(toBasePlayerData);
         const message: Message<SyncRoomData> = {
             method: 'SYNC_ROOM_DATA',
             data: {
                 id: this.id,
+                host: this.host,
                 totalRound: this.totalRound,
                 timeLimit: this.timeLimit,
                 players,
@@ -83,6 +89,15 @@ export class Room {
         if (!player) return;
 
         player.playerStatus = 'Eliminated';
+
+        const message: Message<EliminatePlayerData> = {
+            method: 'ELIMITNATE_PLAYER',
+            data: {
+                playerId
+            }
+        };
+
+        this.broadcastMessage(message);
     };
 
     broadcastMessage = (message: Message<any>) => {
