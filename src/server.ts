@@ -3,10 +3,11 @@ import * as http from 'http';
 import * as uuid from 'uuid';
 import { Room } from './Room';
 import { Player } from './Player';
+import * as roomService from './services/roomService';
 
 const defaultRoom: Room = new Room(2, 5000);
 
-const rooms: Room[] = [defaultRoom];
+roomService.addRoom(defaultRoom)
 
 const server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -34,7 +35,7 @@ const onJoinRoom = (player: Player, data: JoinRoomData) => {
   player.roomId = data.roomId;
   player.playerName = data.playerName;
 
-  const room = rooms.find(room => room.id === data.roomId);
+  const room = roomService.getRoomById(data.roomId);
 
   if (!room) return;
 
@@ -43,7 +44,7 @@ const onJoinRoom = (player: Player, data: JoinRoomData) => {
 };
 
 const onExitRoom = (player: Player) => {
-  const room = rooms.find(room => room.id === player.roomId);
+  const room = roomService.getRoomById(player.roomId);
 
   if (!room) return;
 
@@ -53,28 +54,34 @@ const onExitRoom = (player: Player) => {
 };
 
 const onStartRound = (player: Player) => {
-  const room = rooms.find(room => room.id === player.roomId);
+  const room = roomService.getRoomById(player.roomId);
 
   if (!room) return;
 
   room.startRound();
 };
 
-const onEliminatePlayer = (player: Player, data: EliminatePlayerData) => {
-  const room = rooms.find(room => room.id === player.roomId);
+const onEliminatePlayer = (player: Player, data: BasePlayerData) => {
+  const room = roomService.getRoomById(player.roomId);
   const message: Message<any> = { method: 'ELIMITNATE_PLAYER', data };
 
   room?.broadcastMessage(message)
 };
 
 const onUpdateRoomSetting = (player: Player, data: UpdateRoomSettingData) => {
-  const room = rooms.find(room => room.id === player.roomId);
+  const room = roomService.getRoomById(player.roomId);
 
   room?.updateSetting(data.totalRound, data.timeLimit);
 };
 
+const onGuessWord = (player: Player, data: GuessWordData) => {
+  const room = roomService.getRoomById(player.roomId);
+
+  room?.checkGuessWord(player.playerId, data.word);
+};
+
 const onEndGame = (player: Player) => {
-  const room = rooms.find(room => room.id === player.roomId);
+  const room = roomService.getRoomById(player.roomId);
   const message: Message<any> = {
     method: 'END_GAME',
   }
@@ -98,6 +105,9 @@ const handleRequestMessage = (player: Player, method: Method, data: any) => {
       break;
     case 'ELIMITNATE_PLAYER':
       onEliminatePlayer(player, data);
+      break;
+    case 'GUESS_WORD':
+      onGuessWord(player, data);
       break;
     case 'END_GAME':
       onEndGame(player);
@@ -132,8 +142,8 @@ wsServer.on('connect', (connection) => {
 
 wsServer.on('close', (connection) => {
   const player = <Player>connection;
+  const room = roomService.getRoomById(player.roomId);
   const { playerId } = player;
-  const room = rooms.find(room => room.id === player.roomId);
 
   if (room) {
     room.removePlayer(playerId);

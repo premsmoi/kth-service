@@ -1,6 +1,6 @@
 type Method = RoomMethod | PlayerMethod | GameMethod;
 type RoomMethod = 'ADD_PLAYER' | 'REMOVE_PLAYER' | 'UPDATE_ROOM_SETTING' | 'SYNC_ROOM_DATA';
-type PlayerMethod = 'SYNC_PLAYER_DATA' | 'JOIN_ROOM' | 'EXIT_ROOM';
+type PlayerMethod = 'SYNC_PLAYER_DATA' | 'JOIN_ROOM' | 'EXIT_ROOM' | 'GUESS_WORD';
 type GameMethod = 'START_ROUND' | 'ELIMITNATE_PLAYER' | 'END_GAME';
 
 interface JoinRoomData {
@@ -18,16 +18,21 @@ interface UpdateRoomSettingData {
   timeLimit: number;
 }
 
+interface StartRoundData {
+  currentRound: number;
+}
+
 interface SyncRoomData {
   id: string;
   host: string;
   players: BasePlayerData[];
   totalRound: number;
   timeLimit: number;
+  currentRound: number;
 }
 
-interface EliminatePlayerData {
-  playerId: string;
+interface GuessWordData {
+  word: string;
 }
 
 interface Message<T> {

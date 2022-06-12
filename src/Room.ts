@@ -9,7 +9,8 @@ export class Room {
     timeLimit: number;
     isPlaying: boolean = false;
     isFinish: boolean = false;
-    scores: Record<string, number[]> = {};
+    scores: Record<string, number>[] = [];
+    currentPendingPlayer: BasePlayerData[] = [];
 
     constructor(totalRound: number, timeLimit: number) {
         this.id = '123';
@@ -67,6 +68,12 @@ export class Room {
         this.broadcastMessage(message);
     };
 
+    checkGuessWord = (playerId: string, word: string) => {
+        this.currentPendingPlayer = this.currentPendingPlayer.filter(p => p.playerId !== playerId);
+
+        
+    };
+
     syncDataTo = (player: Player) => {
         const players = this.players.map(toBasePlayerData);
         const message: Message<SyncRoomData> = {
@@ -76,6 +83,7 @@ export class Room {
                 host: this.host,
                 totalRound: this.totalRound,
                 timeLimit: this.timeLimit,
+                currentRound: this.currentRound,
                 players,
             }
         };
@@ -87,10 +95,10 @@ export class Room {
         const player = this.players.find(p => p.playerId === playerId);
 
         if (!player) return;
+        
+        this.currentPendingPlayer = this.currentPendingPlayer.filter(p => p.playerId !== playerId);
 
-        player.playerStatus = 'Eliminated';
-
-        const message: Message<EliminatePlayerData> = {
+        const message: Message<BasePlayerData> = {
             method: 'ELIMITNATE_PLAYER',
             data: {
                 playerId
@@ -111,13 +119,16 @@ export class Room {
 
         this.isPlaying = true;
         this.currentRound++;
+        this.currentPendingPlayer = this.players.map(toBasePlayerData);
 
-        const startRoundMessage: Message<any> = {
+        const startRoundMessage: Message<StartRoundData> = {
             method: 'START_ROUND',
+            data: {
+                currentRound: this.currentRound
+            }
         };
 
         this.players.forEach(player => {
-            player.playerStatus = 'Playing';
             player.sendUTF(JSON.stringify(startRoundMessage));
         });
     };
