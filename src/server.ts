@@ -4,6 +4,9 @@ import * as uuid from 'uuid';
 import { Room } from './Room';
 import { Player } from './Player';
 import * as roomService from './services/roomService';
+import * as wordService from './services/wordService';
+
+wordService.readFile();
 
 const defaultRoom: Room = new Room(2, 5000);
 

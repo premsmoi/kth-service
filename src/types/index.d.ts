@@ -20,6 +20,7 @@ interface UpdateRoomSettingData {
 
 interface StartRoundData {
   currentRound: number;
+  currentWords: Record<string, string>;
 }
 
 interface SyncRoomData {

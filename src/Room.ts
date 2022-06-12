@@ -1,4 +1,5 @@
 import { Player, toBasePlayerData } from "./Player";
+import * as wordService from './services/wordService';
 
 export class Room {
     id: string;
@@ -11,6 +12,7 @@ export class Room {
     isFinish: boolean = false;
     scores: Record<string, number>[] = [];
     currentPendingPlayer: BasePlayerData[] = [];
+    currentWords: Record<string, string> = {};
 
     constructor(totalRound: number, timeLimit: number) {
         this.id = '123';
@@ -37,7 +39,7 @@ export class Room {
     };
 
     addScore = (playerId: string, score: number) => {
-        this.scores[playerId].push(score);
+        this.scores[this.currentRound][playerId] = score;
     };
 
     removePlayer = (playerId: string) => {
@@ -115,16 +117,22 @@ export class Room {
     };
 
     startRound = () => {
-        if (this.isPlaying || this.isFinish) return;
-
-        this.isPlaying = true;
         this.currentRound++;
         this.currentPendingPlayer = this.players.map(toBasePlayerData);
+
+        this.currentWords = {};
+
+        this.players.forEach(player => {
+            const word = wordService.randomWord();
+
+            this.currentWords[player.playerId] = word;
+        });
 
         const startRoundMessage: Message<StartRoundData> = {
             method: 'START_ROUND',
             data: {
-                currentRound: this.currentRound
+                currentRound: this.currentRound,
+                currentWords: this.currentWords,
             }
         };
 
