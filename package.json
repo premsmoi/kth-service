@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "rm -rf dist && rollup -c && node ./dist/index.js",
+    "build": "rollup -c",
+    "build-image": "docker build -t kth-service-image .",
+    "dev": "rollup -c -w",
+    "image": "docker run -dp 8080:8080 kth-service-image",
+    "start": "node ./dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -19,6 +23,7 @@
     "@types/websocket": "^1.0.5",
     "rollup": "^2.75.5",
     "rollup-plugin-terser": "^7.0.2",
+    "tslib": "^2.4.0",
     "typescript": "^4.7.3"
   }
 }
