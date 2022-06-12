@@ -18,6 +18,7 @@
     "@types/uuid": "^8.3.4",
     "@types/websocket": "^1.0.5",
     "rollup": "^2.75.5",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.7.3"
   }
 }
