@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
-    "build-image": "docker build -t kth-service-image .",
+    "build-image": "docker build -t premsmoi/kth-service .",
     "dev": "rollup -c -w",
     "image": "docker run -dp 8080:8080 kth-service-image",
-    "start": "node ./dist/index.js",
+    "start": "node ./dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

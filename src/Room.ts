@@ -1,4 +1,4 @@
-import { Player } from "./Player";
+import { Player, toBasePlayerData } from "./Player";
 
 export class Room {
     id: string;
@@ -14,12 +14,20 @@ export class Room {
         this.id = '123';
         this.totalRound = totalRound;
         this.timeLimit = timeLimit;
-    }
+    };
 
     addPlayer = (player: Player) => {
         this.players.push(player);
 
-        this.update();
+        const message: Message<BasePlayerData> = {
+            method: 'ADD_PLAYER',
+            data: {
+                playerId: player.playerId,
+                playerName: player.playerName,
+            }
+        };
+
+        this.broadcastMessage(message);
     };
 
     addScore = (playerId: string, score: number) => {
@@ -29,34 +37,44 @@ export class Room {
     removePlayer = (playerId: string) => {
         this.players = this.players.filter(player => player.playerId !== playerId);
 
-        this.update();
+        const message: Message<BasePlayerData> = {
+            method: 'REMOVE_PLAYER',
+            data: {
+                playerId
+            }
+        };
+
+        this.broadcastMessage(message);
     };
 
     updateSetting = (totalRound: number, timeLimit: number) => {
         this.totalRound = totalRound;
         this.timeLimit = timeLimit;
 
-        this.update();
-    }
-
-    update = () => {
-        const updateRoomMessage: Message<any> = {
-            method: 'UPDATE_ROOM',
+        const message: Message<UpdateRoomSettingData> = {
+            method: 'UPDATE_ROOM_SETTING',
             data: {
-                id: this.id,
-                players: this.players.map(player => ({
-                    playerName: player.playerName,
-                    playerId: player.playerId
-                })),
                 totalRound: this.totalRound,
-                currentRound: this.currentRound,
                 timeLimit: this.timeLimit,
-                isPlaying: this.isPlaying,
-                isFinish: this.isFinish,
             }
         };
 
-        this.broadcastMessage(updateRoomMessage);
+        this.broadcastMessage(message);
+    };
+
+    syncData = (player: Player) => {
+        const players = this.players.map(toBasePlayerData);
+        const message: Message<SyncRoomData> = {
+            method: 'SYNC_ROOM_DATA',
+            data: {
+                id: this.id,
+                totalRound: this.totalRound,
+                timeLimit: this.timeLimit,
+                players,
+            }
+        };
+
+        player.sendUTF(JSON.stringify(message));
     };
 
     eliminatePlayer = (playerId: string) => {
@@ -69,8 +87,6 @@ export class Room {
 
     broadcastMessage = (message: Message<any>) => {
         this.players.forEach(player => {
-            console.log({ message });
-            console.log(this.players.length);
             player.sendUTF(JSON.stringify(message));
         });
     };

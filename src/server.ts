@@ -28,7 +28,7 @@ const wsServer = new WebSocketServer({
     autoAcceptConnections: true
 });
 
-const joinRoom = (player: Player, data: JoinRoomData) => {
+const onJoinRoom = (player: Player, data: JoinRoomData) => {
   if (player.roomId === data.roomId) return;
 
   player.roomId = data.roomId;
@@ -39,42 +39,68 @@ const joinRoom = (player: Player, data: JoinRoomData) => {
   if (!room) return;
 
   room.addPlayer(player);
+  room.syncData(player);
 };
 
-const startRound = (data: StartRoundData) => {
-  const room = rooms.find(room => room.id === data.roomId);
+const onExitRoom = (player: Player) => {
+  const room = rooms.find(room => room.id === player.roomId);
+
+  if (!room) return;
+
+  player.roomId = '';
+
+  room.removePlayer(player.playerId);
+};
+
+const onStartRound = (player: Player) => {
+  const room = rooms.find(room => room.id === player.roomId);
 
   if (!room) return;
 
   room.startRound();
-}
+};
 
-const eliminatePlayer = (data: EleminatePlayerData) => {
-  const room = rooms.find(room => room.id === data.roomId);
+const onEliminatePlayer = (player: Player, data: EliminatePlayerData) => {
+  const room = rooms.find(room => room.id === player.roomId);
   const message: Message<any> = { method: 'ELIMITNATE_PLAYER', data };
 
   room?.broadcastMessage(message)
-}
+};
 
-const updateRoomSetting = (data: UpdateRoomSettingData) => {
-  const room = rooms.find(room => room.id === data.roomId);
+const onUpdateRoomSetting = (player: Player, data: UpdateRoomSettingData) => {
+  const room = rooms.find(room => room.id === player.roomId);
 
   room?.updateSetting(data.totalRound, data.timeLimit);
-}
+};
+
+const onEndGame = (player: Player) => {
+  const room = rooms.find(room => room.id === player.roomId);
+  const message: Message<any> = {
+    method: 'END_GAME',
+  }
+
+  room?.broadcastMessage(message);
+};
 
 const handleRequestMessage = (player: Player, method: Method, data: any) => {
   switch(method) {
     case 'JOIN_ROOM':
-      joinRoom(player, data);
+      onJoinRoom(player, data);
       break;
-    case 'UPDATE_ROOM':
-      updateRoomSetting(data);
+    case 'EXIT_ROOM':
+      onExitRoom(player);
+      break;
+    case 'UPDATE_ROOM_SETTING':
+      onUpdateRoomSetting(player, data);
       break;
     case 'START_ROUND':
-      startRound(data);
+      onStartRound(player);
       break;
     case 'ELIMITNATE_PLAYER':
-      eliminatePlayer(data);
+      onEliminatePlayer(player, data);
+      break;
+    case 'END_GAME':
+      onEndGame(player);
       break;
   }
 };
@@ -83,7 +109,16 @@ wsServer.on('connect', (connection) => {
   const player = <Player>connection;
   player.playerId = uuid.v4();
 
-  console.log('There is a client connected.', player.playerId);
+  console.log('There is a player connected.', player.playerId);
+
+  const syncPlayerDataMessage: Message<BasePlayerData> = {
+    method: 'SYNC_PLAYER_DATA',
+    data: {
+      playerId: player.playerId,
+    }
+  };
+
+  player.sendUTF(JSON.stringify(syncPlayerDataMessage));
 
   player.on('message', (message) => {
     const requestData: Message<any> = JSON.parse((<IUtf8Message>message).utf8Data);
@@ -104,5 +139,5 @@ wsServer.on('close', (connection) => {
     room.removePlayer(playerId);
   }
 
-  console.log('This player has been closed.', playerId);
+  console.log('This player has disconnected.', playerId);
 });
