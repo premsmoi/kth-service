@@ -66,9 +66,8 @@ const onStartRound = (player: Player) => {
 
 const onEliminatePlayer = (player: Player, data: BasePlayerData) => {
   const room = roomService.getRoomById(player.roomId);
-  const message: Message<any> = { method: 'ELIMITNATE_PLAYER', data };
-
-  room?.broadcastMessage(message)
+  
+  room?.eliminatePlayer(player.playerId);
 };
 
 const onUpdateRoomSetting = (player: Player, data: UpdateRoomSettingData) => {

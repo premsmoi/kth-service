@@ -11,8 +11,8 @@ export class Room {
     isPlaying: boolean = false;
     isFinish: boolean = false;
     scores: Record<string, number>[] = [];
-    currentPendingPlayer: BasePlayerData[] = [];
     currentWords: Record<string, string> = {};
+    currentPlayerStatus: PlayerStatusMapping = {};
 
     constructor(totalRound: number, timeLimit: number) {
         this.id = '123';
@@ -71,9 +71,13 @@ export class Room {
     };
 
     checkGuessWord = (playerId: string, word: string) => {
-        this.currentPendingPlayer = this.currentPendingPlayer.filter(p => p.playerId !== playerId);
+        if (this.currentWords[playerId] === word) {
+            this.currentPlayerStatus[playerId] = 'CORRECT';
+        } else {
+            this.currentPlayerStatus[playerId] = 'WRONG';
+        }
 
-        
+        this.broadcastPlayerStatus();
     };
 
     syncDataTo = (player: Player) => {
@@ -97,14 +101,18 @@ export class Room {
         const player = this.players.find(p => p.playerId === playerId);
 
         if (!player) return;
-        
-        this.currentPendingPlayer = this.currentPendingPlayer.filter(p => p.playerId !== playerId);
 
-        const message: Message<BasePlayerData> = {
-            method: 'ELIMITNATE_PLAYER',
+        this.currentPlayerStatus[playerId] = 'ELIMINATED';
+
+        this.broadcastPlayerStatus();
+    };
+
+    broadcastPlayerStatus = () => {
+        const message: Message<UpdatePlayerStatusData> = {
+            method: 'UPDATE_PLAYER_STATUS',
             data: {
-                playerId
-            }
+                playerStatusMapping: this.currentPlayerStatus,
+            },
         };
 
         this.broadcastMessage(message);
@@ -118,7 +126,6 @@ export class Room {
 
     startRound = () => {
         this.currentRound++;
-        this.currentPendingPlayer = this.players.map(toBasePlayerData);
 
         this.currentWords = {};
 
