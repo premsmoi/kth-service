@@ -1,9 +1,10 @@
 type Method = RoomMethod | PlayerMethod | GameMethod;
 type RoomMethod = 'ADD_PLAYER' | 'REMOVE_PLAYER' | 'UPDATE_ROOM_SETTING' | 'SYNC_ROOM_DATA';
 type PlayerMethod = 'SYNC_PLAYER_DATA' | 'JOIN_ROOM' | 'EXIT_ROOM' | 'GUESS_WORD';
-type GameMethod = 'START_ROUND' | 'ELIMITNATE_PLAYER'| 'UPDATE_PLAYER_STATUS' | 'CURRENT_GUESSING_PLAYER' | 'END_GAME';
+type GameMethod = 'START_ROUND' | 'END_ROUND' | 'ROUND_TIME_UP' | 'ELIMITNATE_PLAYER'| 'UPDATE_PLAYER_STATUS' | 'CURRENT_GUESSING_PLAYER' | 'END_GAME';
 type PlayerStatus = 'PLAYING' | 'ELIMINATED' | 'CORRECT' | 'WRONG';
 type PlayerStatusMapping = Record<string, PlayerStatus>;
+type ScoreData = Record<string, number>[];
 
 interface JoinRoomData {
   playerName: string;
@@ -17,7 +18,7 @@ interface BasePlayerData {
 
 interface UpdateRoomSettingData {
   totalRound: number;
-  timeLimit: number;
+  limitTime: number;
 }
 
 interface UpdatePlayerStatusData {
@@ -29,12 +30,16 @@ interface StartRoundData {
   currentWords: Record<string, string>;
 }
 
+interface EndRoundData {
+  scores: ScoreData;
+}
+
 interface SyncRoomData {
   id: string;
   host: string;
   players: BasePlayerData[];
   totalRound: number;
-  timeLimit: number;
+  limitTime: number;
   currentRound: number;
 }
 

@@ -73,7 +73,7 @@ const onEliminatePlayer = (player: Player, data: BasePlayerData) => {
 const onUpdateRoomSetting = (player: Player, data: UpdateRoomSettingData) => {
   const room = roomService.getRoomById(player.roomId);
 
-  room?.updateSetting(data.totalRound, data.timeLimit);
+  room?.updateSetting(data.totalRound, data.limitTime);
 };
 
 const onGuessWord = (player: Player, data: GuessWordData) => {

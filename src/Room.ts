@@ -7,17 +7,19 @@ export class Room {
     players: Player[] = [];
     currentRound: number = 0;
     totalRound: number;
-    timeLimit: number;
+    remainingTime: number;
+    limitTime: number;
     isPlaying: boolean = false;
     isFinish: boolean = false;
-    scores: Record<string, number>[] = [];
+    scores: ScoreData = [];
     currentWords: Record<string, string> = {};
     currentPlayerStatus: PlayerStatusMapping = {};
 
-    constructor(totalRound: number, timeLimit: number) {
+    constructor(totalRound: number, limitTime: number) {
         this.id = '123';
         this.totalRound = totalRound;
-        this.timeLimit = timeLimit;
+        this.limitTime = limitTime;
+        this.remainingTime = limitTime;
     };
 
     addPlayer = (player: Player) => {
@@ -39,7 +41,7 @@ export class Room {
     };
 
     addScore = (playerId: string, score: number) => {
-        this.scores[this.currentRound][playerId] = score;
+        this.scores[this.currentRound][playerId] += score;
     };
 
     removePlayer = (playerId: string) => {
@@ -55,15 +57,15 @@ export class Room {
         this.broadcastMessage(message);
     };
 
-    updateSetting = (totalRound: number, timeLimit: number) => {
+    updateSetting = (totalRound: number, limitTime: number) => {
         this.totalRound = totalRound;
-        this.timeLimit = timeLimit;
+        this.limitTime = limitTime;
 
         const message: Message<UpdateRoomSettingData> = {
             method: 'UPDATE_ROOM_SETTING',
             data: {
                 totalRound: this.totalRound,
-                timeLimit: this.timeLimit,
+                limitTime: this.limitTime,
             }
         };
 
@@ -73,6 +75,7 @@ export class Room {
     checkGuessWord = (playerId: string, word: string) => {
         if (this.currentWords[playerId] === word) {
             this.currentPlayerStatus[playerId] = 'CORRECT';
+            this.addScore(playerId, 1);
         } else {
             this.currentPlayerStatus[playerId] = 'WRONG';
         }
@@ -88,7 +91,7 @@ export class Room {
                 id: this.id,
                 host: this.host,
                 totalRound: this.totalRound,
-                timeLimit: this.timeLimit,
+                limitTime: this.limitTime,
                 currentRound: this.currentRound,
                 players,
             }
@@ -125,7 +128,20 @@ export class Room {
     };
 
     startRound = () => {
+        if (this.isPlaying) return;
+
+        if (this.currentRound === this.totalRound) {
+            const endGameMessage: Message<null> = {
+                method: 'END_GAME',
+            };
+    
+            this.broadcastMessage(endGameMessage);
+
+            return;
+        }
+
         this.currentRound++;
+        this.isPlaying = true;
 
         this.currentWords = {};
 
@@ -135,6 +151,20 @@ export class Room {
             this.currentWords[player.playerId] = word;
         });
 
+        this.remainingTime = this.limitTime;
+
+        const timer = setInterval(() => {
+            this.remainingTime--;
+            console.log(`Round: ${this.currentRound}, Remaining Time: ${this.remainingTime}`);
+
+            if (this.remainingTime === 0) {
+                this.roundTimeUp();
+                this.isPlaying = false;
+
+                clearInterval(timer);
+            }
+        }, 1000);
+
         const startRoundMessage: Message<StartRoundData> = {
             method: 'START_ROUND',
             data: {
@@ -143,8 +173,20 @@ export class Room {
             }
         };
 
-        this.players.forEach(player => {
-            player.sendUTF(JSON.stringify(startRoundMessage));
+        this.broadcastMessage(startRoundMessage);
+    };
+
+    roundTimeUp = () => {
+        Object.entries(this.currentPlayerStatus).forEach(([playerId, status]) => {
+            if (status === 'PLAYING') {
+                this.addScore(playerId, 1);
+            }
         });
+
+        const roundTimeUpMessage: Message<null> = {
+            method: 'ROUND_TIME_UP',
+        };
+
+        this.broadcastMessage(roundTimeUpMessage);
     };
 }
