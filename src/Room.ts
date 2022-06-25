@@ -1,10 +1,10 @@
-import { Player, toBasePlayerData } from "./Player";
+import { PlayerConnection, toBasePlayerData } from "./services/playerService";
 import * as wordService from './services/wordService';
 
-export class Room {
+export class Room implements RoomData {
     id: string;
     host: string = '';
-    players: Player[] = [];
+    players: PlayerConnection[] = [];
     currentRound: number = 0;
     totalRound: number;
     remainingTime: number;
@@ -22,7 +22,7 @@ export class Room {
         this.remainingTime = limitTime;
     };
 
-    addPlayer = (player: Player) => {
+    addPlayer = (player: PlayerConnection) => {
         if (!this.host) {
             this.host = player.playerId;
         }
@@ -83,7 +83,7 @@ export class Room {
         this.broadcastPlayerStatus();
     };
 
-    syncDataTo = (player: Player) => {
+    syncDataTo = (player: PlayerConnection) => {
         const players = this.players.map(toBasePlayerData);
         const message: Message<SyncRoomData> = {
             method: 'SYNC_ROOM_DATA',

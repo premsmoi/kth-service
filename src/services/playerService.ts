@@ -1,11 +1,6 @@
 import { connection as Connection } from 'websocket';
 
-export interface Player extends Connection {
-    playerId: string;
-    roomId: string;
-    playerName: string;
-    playerStatus: PlayerStatus;
-};
+export interface PlayerConnection extends Connection, Player { }
 
 export const toBasePlayerData = (player: Player): BasePlayerData => {
     return {

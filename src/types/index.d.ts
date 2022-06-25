@@ -6,6 +6,28 @@ type PlayerStatus = 'PLAYING' | 'ELIMINATED' | 'CORRECT' | 'WRONG';
 type PlayerStatusMapping = Record<string, PlayerStatus>;
 type ScoreData = Record<string, number>[];
 
+interface Player {
+  playerId: string;
+  roomId: string;
+  playerName: string;
+  playerStatus: PlayerStatus;
+}
+
+interface RoomData {
+  id: string;
+  host: string;
+  players: PlayerConnection[];
+  currentRound: number;
+  totalRound: number;
+  remainingTime: number;
+  limitTime: number;
+  isPlaying: boolean;
+  isFinish: boolean;
+  scores: ScoreData;
+  currentWords: Record<string, string>;
+  currentPlayerStatus: PlayerStatusMapping;
+}
+
 interface JoinRoomData {
   playerName: string;
   roomId: string;

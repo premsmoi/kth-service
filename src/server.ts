@@ -2,13 +2,13 @@ import { IUtf8Message, server as WebSocketServer } from 'websocket';
 import * as http from 'http';
 import * as uuid from 'uuid';
 import { Room } from './Room';
-import { Player } from './Player';
+import { PlayerConnection } from './services/playerService';
 import * as roomService from './services/roomService';
 import * as wordService from './services/wordService';
 
 wordService.readFile();
 
-const defaultRoom: Room = new Room(2, 5000);
+const defaultRoom: Room = new Room(3, 5);
 
 roomService.addRoom(defaultRoom)
 
@@ -32,7 +32,7 @@ const wsServer = new WebSocketServer({
     autoAcceptConnections: true
 });
 
-const onJoinRoom = (player: Player, data: JoinRoomData) => {
+const onJoinRoom = (player: PlayerConnection, data: JoinRoomData) => {
   if (player.roomId === data.roomId) return;
 
   player.roomId = data.roomId;
@@ -46,7 +46,7 @@ const onJoinRoom = (player: Player, data: JoinRoomData) => {
   room.syncDataTo(player);
 };
 
-const onExitRoom = (player: Player) => {
+const onExitRoom = (player: PlayerConnection) => {
   const room = roomService.getRoomById(player.roomId);
 
   if (!room) return;
@@ -56,7 +56,7 @@ const onExitRoom = (player: Player) => {
   room.removePlayer(player.playerId);
 };
 
-const onStartRound = (player: Player) => {
+const onStartRound = (player: PlayerConnection) => {
   const room = roomService.getRoomById(player.roomId);
 
   if (!room) return;
@@ -64,25 +64,25 @@ const onStartRound = (player: Player) => {
   room.startRound();
 };
 
-const onEliminatePlayer = (player: Player, data: BasePlayerData) => {
+const onEliminatePlayer = (player: PlayerConnection, data: BasePlayerData) => {
   const room = roomService.getRoomById(player.roomId);
   
   room?.eliminatePlayer(player.playerId);
 };
 
-const onUpdateRoomSetting = (player: Player, data: UpdateRoomSettingData) => {
+const onUpdateRoomSetting = (player: PlayerConnection, data: UpdateRoomSettingData) => {
   const room = roomService.getRoomById(player.roomId);
 
   room?.updateSetting(data.totalRound, data.limitTime);
 };
 
-const onGuessWord = (player: Player, data: GuessWordData) => {
+const onGuessWord = (player: PlayerConnection, data: GuessWordData) => {
   const room = roomService.getRoomById(player.roomId);
 
   room?.checkGuessWord(player.playerId, data.word);
 };
 
-const onEndGame = (player: Player) => {
+const onEndGame = (player: PlayerConnection) => {
   const room = roomService.getRoomById(player.roomId);
   const message: Message<any> = {
     method: 'END_GAME',
@@ -91,7 +91,7 @@ const onEndGame = (player: Player) => {
   room?.broadcastMessage(message);
 };
 
-const handleRequestMessage = (player: Player, method: Method, data: any) => {
+const handleRequestMessage = (player: PlayerConnection, method: Method, data: any) => {
   switch(method) {
     case 'JOIN_ROOM':
       onJoinRoom(player, data);
@@ -118,7 +118,7 @@ const handleRequestMessage = (player: Player, method: Method, data: any) => {
 };
 
 wsServer.on('connect', (connection) => {
-  const player = <Player>connection;
+  const player = <PlayerConnection>connection;
   player.playerId = uuid.v4();
 
   console.log('There is a player connected.', player.playerId);
@@ -143,7 +143,7 @@ wsServer.on('connect', (connection) => {
 });
 
 wsServer.on('close', (connection) => {
-  const player = <Player>connection;
+  const player = <PlayerConnection>connection;
   const room = roomService.getRoomById(player.roomId);
   const { playerId } = player;
 
