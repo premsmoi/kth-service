@@ -1,3 +1,4 @@
+import { BasePlayerData, Message, PlayerStatusMapping, RoomData, ScoreData, StartRoundData, SyncRoomData, UpdatePlayerStatusData, UpdateRoomSettingData } from "../types/index";
 import { PlayerConnection, toBasePlayerData } from "./services/playerService";
 import * as wordService from './services/wordService';
 

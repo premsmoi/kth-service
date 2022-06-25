@@ -5,6 +5,7 @@ import { Room } from './Room';
 import { PlayerConnection } from './services/playerService';
 import * as roomService from './services/roomService';
 import * as wordService from './services/wordService';
+import { BasePlayerData, GuessWordData, JoinRoomData, Message, Method, UpdateRoomSettingData } from '../types/index';
 
 wordService.readFile();
 

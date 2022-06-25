@@ -1,22 +1,22 @@
-type Method = RoomMethod | PlayerMethod | GameMethod;
 type RoomMethod = 'ADD_PLAYER' | 'REMOVE_PLAYER' | 'UPDATE_ROOM_SETTING' | 'SYNC_ROOM_DATA';
 type PlayerMethod = 'SYNC_PLAYER_DATA' | 'JOIN_ROOM' | 'EXIT_ROOM' | 'GUESS_WORD';
 type GameMethod = 'START_ROUND' | 'END_ROUND' | 'ROUND_TIME_UP' | 'ELIMITNATE_PLAYER'| 'UPDATE_PLAYER_STATUS' | 'CURRENT_GUESSING_PLAYER' | 'END_GAME';
-type PlayerStatus = 'PLAYING' | 'ELIMINATED' | 'CORRECT' | 'WRONG';
-type PlayerStatusMapping = Record<string, PlayerStatus>;
-type ScoreData = Record<string, number>[];
 
-interface Player {
+export type PlayerStatus = 'PLAYING' | 'ELIMINATED' | 'CORRECT' | 'WRONG';
+export type Method = RoomMethod | PlayerMethod | GameMethod;
+export type PlayerStatusMapping = Record<string, PlayerStatus>;
+export type ScoreData = Record<string, number>[];
+
+export interface Player {
   playerId: string;
   roomId: string;
   playerName: string;
   playerStatus: PlayerStatus;
 }
 
-interface RoomData {
+export interface RoomData {
   id: string;
   host: string;
-  players: PlayerConnection[];
   currentRound: number;
   totalRound: number;
   remainingTime: number;
@@ -28,22 +28,22 @@ interface RoomData {
   currentPlayerStatus: PlayerStatusMapping;
 }
 
-interface JoinRoomData {
+export interface JoinRoomData {
   playerName: string;
   roomId: string;
 }
 
-interface BasePlayerData {
+export interface BasePlayerData {
   playerId: string;
   playerName?: string;
 }
 
-interface UpdateRoomSettingData {
+export interface UpdateRoomSettingData {
   totalRound: number;
   limitTime: number;
 }
 
-interface UpdatePlayerStatusData {
+export interface UpdatePlayerStatusData {
   playerStatusMapping: PlayerStatusMapping;
 }
 
@@ -52,11 +52,11 @@ interface StartRoundData {
   currentWords: Record<string, string>;
 }
 
-interface EndRoundData {
+export interface EndRoundData {
   scores: ScoreData;
 }
 
-interface SyncRoomData {
+export interface SyncRoomData {
   id: string;
   host: string;
   players: BasePlayerData[];
@@ -65,11 +65,11 @@ interface SyncRoomData {
   currentRound: number;
 }
 
-interface GuessWordData {
+export interface GuessWordData {
   word: string;
 }
 
-interface Message<T> {
+export interface Message<T> {
   method: Method;
   data?: T;
 }
