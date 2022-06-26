@@ -12,6 +12,7 @@ export interface Player {
   roomId: string;
   playerName: string;
   playerStatus: PlayerStatus;
+  playerAvatarUrl: string;
 }
 
 export interface RoomData {
@@ -30,12 +31,14 @@ export interface RoomData {
 
 export interface JoinRoomData {
   playerName: string;
+  playerAvatarUrl: string;
   roomId: string;
 }
 
 export interface BasePlayerData {
   playerId: string;
   playerName?: string;
+  playerAvatarUrl?: string;
 }
 
 export interface UpdateRoomSettingData {
@@ -44,7 +47,7 @@ export interface UpdateRoomSettingData {
 }
 
 export interface UpdatePlayerStatusData {
-  playerStatusMapping: PlayerStatusMapping;
+  currentPlayerStatus: PlayerStatusMapping;
 }
 
 export interface StartRoundData {

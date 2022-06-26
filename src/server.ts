@@ -9,7 +9,7 @@ import { BasePlayerData, GuessWordData, JoinRoomData, Message, Method, UpdateRoo
 
 wordService.readFile();
 
-const defaultRoom: Room = new Room(3, 5);
+const defaultRoom: Room = new Room(5, 120);
 
 roomService.addRoom(defaultRoom)
 

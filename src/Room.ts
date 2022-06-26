@@ -115,7 +115,7 @@ export class Room implements RoomData {
         const message: Message<UpdatePlayerStatusData> = {
             method: 'UPDATE_PLAYER_STATUS',
             data: {
-                playerStatusMapping: this.currentPlayerStatus,
+                currentPlayerStatus: this.currentPlayerStatus,
             },
         };
 
