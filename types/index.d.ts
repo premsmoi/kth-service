@@ -47,7 +47,7 @@ export interface UpdatePlayerStatusData {
   playerStatusMapping: PlayerStatusMapping;
 }
 
-interface StartRoundData {
+export interface StartRoundData {
   currentRound: number;
   currentWords: Record<string, string>;
 }
