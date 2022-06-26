@@ -2,7 +2,7 @@ import { IUtf8Message, server as WebSocketServer } from 'websocket';
 import * as http from 'http';
 import * as uuid from 'uuid';
 import { Room } from './Room';
-import { PlayerConnection } from './services/playerService';
+import { photoUrl, PlayerConnection } from './services/playerService';
 import * as roomService from './services/roomService';
 import * as wordService from './services/wordService';
 import { BasePlayerData, GuessWordData, JoinRoomData, Message, Method, UpdateRoomSettingData } from '../types/index';
@@ -122,12 +122,16 @@ wsServer.on('connect', (connection) => {
   const player = <PlayerConnection>connection;
   player.playerId = uuid.v4();
 
+  const id = Math.ceil(Math.random() * 905);
+  const playerAvatarUrl = photoUrl.replace('{id}', id.toString());
+
   console.log('There is a player connected.', player.playerId);
 
   const syncPlayerDataMessage: Message<BasePlayerData> = {
     method: 'SYNC_PLAYER_DATA',
     data: {
       playerId: player.playerId,
+      playerAvatarUrl,
     }
   };
 
