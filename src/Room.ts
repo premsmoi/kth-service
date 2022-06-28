@@ -74,6 +74,8 @@ export class Room implements RoomData {
     };
 
     checkGuessWord = (playerId: string, word: string) => {
+        if (this.currentPlayerStatus[playerId] !== 'GUESSING') return;
+
         if (this.currentWords[playerId] === word) {
             this.currentPlayerStatus[playerId] = 'CORRECT';
             this.addScore(playerId, 1);
@@ -81,7 +83,7 @@ export class Room implements RoomData {
             this.currentPlayerStatus[playerId] = 'WRONG';
         }
 
-        this.broadcastPlayerStatus();
+        this.updateGuessingPlayer();
     };
 
     syncDataTo = (player: PlayerConnection) => {
@@ -142,6 +144,7 @@ export class Room implements RoomData {
         }
 
         this.currentRound++;
+        this.scores[this.currentRound] = {};
         this.isPlaying = true;
 
         this.currentWords = {};
@@ -150,6 +153,7 @@ export class Room implements RoomData {
             const word = wordService.randomWord();
 
             this.currentWords[player.playerId] = word;
+            this.currentPlayerStatus[player.playerId] = 'PLAYING';
         });
 
         this.remainingTime = this.limitTime;
@@ -189,5 +193,19 @@ export class Room implements RoomData {
         };
 
         this.broadcastMessage(roundTimeUpMessage);
+        this.updateGuessingPlayer();
+    };
+
+    updateGuessingPlayer = () => {
+        Object.entries(this.currentPlayerStatus).findIndex(([playerId, playerStatus]) => {
+            if (playerStatus === 'PLAYING') {
+                this.currentPlayerStatus[playerId] = 'GUESSING';
+                return true;
+            }
+
+            return false;
+        });
+
+        this.broadcastPlayerStatus();
     };
 }
