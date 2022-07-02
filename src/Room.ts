@@ -35,6 +35,7 @@ export class Room implements RoomData {
             data: {
                 playerId: player.playerId,
                 playerName: player.playerName,
+                playerAvatarUrl: player.playerAvatarUrl,
             }
         };
 
