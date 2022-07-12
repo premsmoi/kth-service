@@ -198,7 +198,7 @@ export class Room implements RoomData {
     };
 
     updateGuessingPlayer = () => {
-        Object.entries(this.currentPlayerStatus).findIndex(([playerId, playerStatus]) => {
+        const hasGuessingPlayer =  Object.entries(this.currentPlayerStatus).findIndex(([playerId, playerStatus]) => {
             if (playerStatus === 'PLAYING') {
                 this.currentPlayerStatus[playerId] = 'GUESSING';
                 return true;
@@ -208,5 +208,13 @@ export class Room implements RoomData {
         });
 
         this.broadcastPlayerStatus();
+
+        if (!hasGuessingPlayer) {
+            const message: Message<null> = {
+                method: 'END_ROUND'
+            }
+
+            this.broadcastMessage(message)
+        }
     };
 }
