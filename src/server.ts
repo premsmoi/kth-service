@@ -125,6 +125,8 @@ wsServer.on('connect', (connection) => {
   const id = Math.ceil(Math.random() * 905);
   const playerAvatarUrl = photoUrl.replace('{id}', id.toString());
 
+  player.playerAvatarUrl = playerAvatarUrl;
+
   console.log('There is a player connected.', player.playerId);
 
   const syncPlayerDataMessage: Message<BasePlayerData> = {
