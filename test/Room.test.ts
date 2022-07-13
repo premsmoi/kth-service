@@ -65,11 +65,11 @@ describe('Class Room', () => {
     });
 
     test('Function addScore should work correctly', () => {
-        expect(room.scores[1]['p1']).toEqual(0);
+        expect(room.scores[0]['p1']).toEqual(0);
 
         room.addScore('p1', 1);
 
-        expect(room.scores[1]['p1']).toEqual(1);
+        expect(room.scores[0]['p1']).toEqual(1);
     });
 
     test('Function removePlayer should work correctly', () => {
