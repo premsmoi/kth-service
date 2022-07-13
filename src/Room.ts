@@ -1,4 +1,4 @@
-import { BasePlayerData, Message, PlayerStatusMapping, RoomData, ScoreData, StartRoundData, SyncRoomData, UpdatePlayerStatusData, UpdateRoomSettingData } from "../types/index";
+import { BasePlayerData, EndRoundData, Message, PlayerStatusMapping, RoomData, ScoreData, StartRoundData, SyncRoomData, UpdatePlayerStatusData, UpdateRoomSettingData } from "../types/index";
 import { PlayerConnection, toBasePlayerData } from "./services/playerService";
 import * as wordService from './services/wordService';
 
@@ -43,7 +43,7 @@ export class Room implements RoomData {
     };
 
     addScore = (playerId: string, score: number) => {
-        this.scores[this.currentRound][playerId] += score;
+        this.scores[this.currentRound - 1][playerId] += score;
     };
 
     removePlayer = (playerId: string) => {
@@ -145,7 +145,7 @@ export class Room implements RoomData {
         }
 
         this.currentRound++;
-        this.scores[this.currentRound] = {};
+        this.scores[this.currentRound - 1] = {};
         this.isPlaying = true;
 
         this.currentWords = {};
@@ -155,7 +155,7 @@ export class Room implements RoomData {
 
             this.currentWords[player.playerId] = word;
             this.currentPlayerStatus[player.playerId] = 'PLAYING';
-            this.scores[this.currentRound][player.playerId] = 0;
+            this.scores[this.currentRound - 1][player.playerId] = 0;
         });
 
         this.remainingTime = this.limitTime;
@@ -199,7 +199,7 @@ export class Room implements RoomData {
     };
 
     updateGuessingPlayer = () => {
-        const hasGuessingPlayer =  Object.entries(this.currentPlayerStatus).findIndex(([playerId, playerStatus]) => {
+        const hasGuessingPlayer =  Object.entries(this.currentPlayerStatus).find(([playerId, playerStatus]) => {
             if (playerStatus === 'PLAYING') {
                 this.currentPlayerStatus[playerId] = 'GUESSING';
                 return true;
@@ -211,11 +211,14 @@ export class Room implements RoomData {
         this.broadcastPlayerStatus();
 
         if (!hasGuessingPlayer) {
-            const message: Message<null> = {
-                method: 'END_ROUND'
-            }
+            const message: Message<EndRoundData> = {
+                method: 'END_ROUND',
+                data: {
+                    scores: this.scores,
+                },
+            };
 
-            this.broadcastMessage(message)
+            this.broadcastMessage(message);
         }
     };
 }
