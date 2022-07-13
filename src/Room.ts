@@ -155,6 +155,7 @@ export class Room implements RoomData {
 
             this.currentWords[player.playerId] = word;
             this.currentPlayerStatus[player.playerId] = 'PLAYING';
+            this.scores[this.currentRound][player.playerId] = 0;
         });
 
         this.remainingTime = this.limitTime;
