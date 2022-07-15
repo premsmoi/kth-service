@@ -219,6 +219,7 @@ export class Room implements RoomData {
             };
 
             this.broadcastMessage(message);
+            this.isPlaying = false;
         }
     };
 }
