@@ -21,9 +21,10 @@ ENV NODE_ENV production
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S kth-user -u 1001
 
-COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=builder /app/dist/* ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/words.txt ./words.txt
 
 USER kth-user
 
@@ -34,4 +35,4 @@ USER kth-user
 
 EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

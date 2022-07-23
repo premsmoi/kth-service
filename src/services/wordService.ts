@@ -1,7 +1,7 @@
 import fs from 'fs';
 import readline from 'readline';
 
-const filePath = 'words.txt';
+const filePath = './words.txt';
 const words: string[] = [];
 
 export const readFile = async () => {

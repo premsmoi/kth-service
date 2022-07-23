@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",
-    "build-image": "docker build -t premsmoi/kth-service .",
+    "build-image": "docker build -t kth-service-image .",
     "dev": "rollup -c -w",
     "image": "docker run -dp 8080:8080 kth-service-image",
     "start": "node ./dist/server.js",
