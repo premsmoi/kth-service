@@ -44,7 +44,6 @@ const onJoinRoom = (player: PlayerConnection, data: JoinRoomData) => {
   if (!room) return;
 
   room.addPlayer(player);
-  room.syncDataTo(player);
 };
 
 const onExitRoom = (player: PlayerConnection) => {

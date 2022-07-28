@@ -1,4 +1,4 @@
-import { BasePlayerData, EndRoundData, Message, PlayerStatusMapping, RoomData, ScoreData, StartRoundData, SyncRoomData, UpdatePlayerStatusData, UpdateRoomSettingData } from "../types/index";
+import { BasePlayerData, EndRoundData, Message, PlayerStatusMapping, RejectRequestData, RoomData, ScoreData, StartRoundData, SyncRoomData, UpdatePlayerStatusData, UpdateRoomSettingData } from "../types/index";
 import { PlayerConnection, toBasePlayerData } from "./services/playerService";
 import * as wordService from './services/wordService';
 
@@ -15,6 +15,7 @@ export class Room implements RoomData {
     scores: ScoreData = [];
     currentWords: Record<string, string> = {};
     currentPlayerStatus: PlayerStatusMapping = {};
+    maxPlayer = 6;
 
     constructor(totalRound: number, limitTime: number) {
         this.id = '123';
@@ -24,6 +25,17 @@ export class Room implements RoomData {
     };
 
     addPlayer = (player: PlayerConnection) => {
+        if (this.players.length === this.maxPlayer) {
+            const message: Message<RejectRequestData> = {
+                method: 'REJECT_REQUEST',
+                data: {
+                    reason: `The room is full. Max player number is ${this.maxPlayer}.`
+                }
+            };
+
+            return player.sendUTF(JSON.stringify(message));
+        }
+
         if (!this.host) {
             this.host = player.playerId;
         }
@@ -40,6 +52,7 @@ export class Room implements RoomData {
         };
 
         this.broadcastMessage(message);
+        this.syncDataTo(player);
     };
 
     addScore = (playerId: string, score: number) => {

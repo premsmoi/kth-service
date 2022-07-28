@@ -1,4 +1,4 @@
-type RoomMethod = 'ADD_PLAYER' | 'REMOVE_PLAYER' | 'UPDATE_ROOM_SETTING' | 'SYNC_ROOM_DATA';
+type RoomMethod = 'ADD_PLAYER' | 'REMOVE_PLAYER' | 'UPDATE_ROOM_SETTING' | 'SYNC_ROOM_DATA' | 'REJECT_REQUEST';
 type PlayerMethod = 'SYNC_PLAYER_DATA' | 'JOIN_ROOM' | 'EXIT_ROOM' | 'GUESS_WORD';
 type GameMethod = 'START_ROUND' | 'END_ROUND' | 'ROUND_TIME_UP' | 'ELIMITNATE_PLAYER'| 'UPDATE_PLAYER_STATUS' | 'CURRENT_GUESSING_PLAYER' | 'END_GAME';
 
@@ -21,6 +21,7 @@ export interface RoomData {
   totalRound: number;
   remainingTime: number;
   limitTime: number;
+  maxPlayer: number;
   isPlaying: boolean;
   isFinish: boolean;
   scores: ScoreData;
@@ -69,6 +70,10 @@ export interface SyncRoomData {
 
 export interface GuessWordData {
   word: string;
+}
+
+export interface RejectRequestData {
+  reason: string;
 }
 
 export interface Message<T> {

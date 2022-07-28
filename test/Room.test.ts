@@ -1,7 +1,7 @@
 import { Room } from '../src/Room';
 import { PlayerConnection } from '../src/services/playerService';
 import * as wordService from '../src/services/wordService';
-import { BasePlayerData, EndRoundData, Message, PlayerStatus, StartRoundData, SyncRoomData, UpdatePlayerStatusData } from '../types';
+import { BasePlayerData, EndRoundData, Message, PlayerStatus, RejectRequestData, StartRoundData, SyncRoomData, UpdatePlayerStatusData } from '../types';
 
 const mockPlayer = (playerId: string) => {
     const player: Partial<PlayerConnection> = {
@@ -41,6 +41,35 @@ describe('Class Room', () => {
         expect(room.players.length).toEqual(1);
         expect(room.players[0].playerId).toEqual('p1');
         expect(room.broadcastMessage).toHaveBeenCalledWith(
+            expect.objectContaining<Message<BasePlayerData>>({ method: 'ADD_PLAYER' })
+        );
+    });
+
+    test('Function addPlayer should reject request if room is full', () => {
+        room.maxPlayer = 4;
+
+        for (let i=1; i<=room.maxPlayer; i++) {
+            const player = mockPlayer(`p${i}`);
+
+            jest.spyOn(player, 'sendUTF');
+
+            room.addPlayer(player as any);
+
+            expect(player.sendUTF).not.toHaveBeenCalledWith(
+                expect.objectContaining<Message<RejectRequestData>>({ method: 'REJECT_REQUEST' })
+            );
+        }
+
+        const newPlayer = mockPlayer('p7');
+
+        jest.spyOn(newPlayer, 'sendUTF');
+
+        room.addPlayer(newPlayer as any);
+
+        expect(newPlayer.sendUTF).toHaveBeenCalledWith(
+            expect.objectContaining<Message<RejectRequestData>>({ method: 'REJECT_REQUEST' })
+        );
+        expect(newPlayer.sendUTF).not.toHaveBeenCalledWith(
             expect.objectContaining<Message<BasePlayerData>>({ method: 'ADD_PLAYER' })
         );
     });
