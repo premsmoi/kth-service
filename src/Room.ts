@@ -17,6 +17,7 @@ export class Room implements RoomData {
     currentWords: Record<string, string> = {};
     currentPlayerStatus: PlayerStatusMapping = {};
     maxPlayer = 6;
+    timer: any = null;
 
     constructor(totalRound: number, limitTime: number) {
         this.id = '123';
@@ -130,6 +131,16 @@ export class Room implements RoomData {
         this.currentPlayerStatus[playerId] = 'ELIMINATED';
 
         this.broadcastPlayerStatus();
+
+        const remainingPlayerCount = Object.values(this.currentPlayerStatus).filter((status) => status === 'PLAYING').length;
+
+        if (remainingPlayerCount === 1) {
+            this.remainingTime = 0;
+            this.roundTimeUp();
+
+            clearInterval(this.timer);
+        }
+
     };
 
     broadcastPlayerStatus = () => {
@@ -165,7 +176,6 @@ export class Room implements RoomData {
         this.currentRound++;
         this.scores[this.currentRound - 1] = {};
         this.isPlaying = true;
-
         this.currentWords = {};
 
         this.players.forEach(player => {
@@ -178,16 +188,17 @@ export class Room implements RoomData {
 
         this.remainingTime = this.limitTime;
 
-        const timer = setInterval(() => {
-            this.remainingTime--;
+        this.timer = setInterval(() => {
             console.log(`Round: ${this.currentRound}, Remaining Time: ${this.remainingTime}`);
 
             if (this.remainingTime === 0) {
                 this.roundTimeUp();
                 this.isPlaying = false;
 
-                clearInterval(timer);
+                clearInterval(this.timer);
             }
+
+            this.remainingTime--;
         }, 1000);
 
         const startRoundMessage: Message<StartRoundData> = {

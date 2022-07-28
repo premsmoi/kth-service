@@ -191,8 +191,10 @@ describe('Class Room', () => {
 
     test('Function eliminatePlayer should work correctly', () => {
         const p1 = mockPlayer('p1');
+        const p2 = mockPlayer('p2');
 
         room.addPlayer(p1 as any);
+        room.addPlayer(p2 as any);
         room.startRound();
 
         expect(room.currentPlayerStatus['p1']).toEqual<PlayerStatus>('PLAYING');
@@ -200,6 +202,10 @@ describe('Class Room', () => {
         room.eliminatePlayer('p1');
 
         expect(room.currentPlayerStatus['p1']).toEqual<PlayerStatus>('ELIMINATED');
+        expect(room.remainingTime).toEqual(0);
+        expect(room.broadcastMessage).toHaveBeenCalledWith(
+            expect.objectContaining<Message<null>>({ method: 'ROUND_TIME_UP' })
+        );
         
     });
 
