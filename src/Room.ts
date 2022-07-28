@@ -48,6 +48,7 @@ export class Room implements RoomData {
 
     removePlayer = (playerId: string) => {
         this.players = this.players.filter(player => player.playerId !== playerId);
+        this.host = this.players[0].playerId;
 
         const message: Message<BasePlayerData> = {
             method: 'REMOVE_PLAYER',

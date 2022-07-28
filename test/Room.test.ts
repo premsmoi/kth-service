@@ -37,6 +37,7 @@ describe('Class Room', () => {
 
         room.addPlayer(p1 as any);
 
+        expect(room.host).toEqual('p1');
         expect(room.players.length).toEqual(1);
         expect(room.players[0].playerId).toEqual('p1');
         expect(room.broadcastMessage).toHaveBeenCalledWith(
@@ -94,6 +95,7 @@ describe('Class Room', () => {
 
         room.removePlayer('p1');
 
+        expect(room.host).toEqual('p2');
         expect(room.players.length).toEqual(1);
         expect(room.broadcastMessage).toHaveBeenCalledWith(
             expect.objectContaining<Message<BasePlayerData>>({ method: 'REMOVE_PLAYER' })
