@@ -1,5 +1,6 @@
 import { BasePlayerData, EndRoundData, Message, PlayerStatusMapping, RejectRequestData, RoomData, ScoreData, StartRoundData, SyncRoomData, UpdatePlayerStatusData, UpdateRoomSettingData } from "../types/index";
-import { PlayerConnection, toBasePlayerData } from "./services/playerService";
+import { PlayerConnection } from "./services/playerService";
+import * as playerService from './services/playerService';
 import * as wordService from './services/wordService';
 
 export class Room implements RoomData {
@@ -33,7 +34,8 @@ export class Room implements RoomData {
                 }
             };
 
-            return player.sendUTF(JSON.stringify(message));
+            playerService.sendMessage(player, message);
+            return false;
         }
 
         if (!this.host) {
@@ -53,6 +55,8 @@ export class Room implements RoomData {
 
         this.broadcastMessage(message);
         this.syncDataTo(player);
+
+        return true;
     };
 
     addScore = (playerId: string, score: number) => {
@@ -102,7 +106,7 @@ export class Room implements RoomData {
     };
 
     syncDataTo = (player: PlayerConnection) => {
-        const players = this.players.map(toBasePlayerData);
+        const players = this.players.map(playerService.toBasePlayerData);
         const message: Message<SyncRoomData> = {
             method: 'SYNC_ROOM_DATA',
             data: {
@@ -115,7 +119,7 @@ export class Room implements RoomData {
             }
         };
 
-        player.sendUTF(JSON.stringify(message));
+        playerService.sendMessage(player, message);
     };
 
     eliminatePlayer = (playerId: string) => {
@@ -141,7 +145,7 @@ export class Room implements RoomData {
 
     broadcastMessage = (message: Message<any>) => {
         this.players.forEach(player => {
-            player.sendUTF(JSON.stringify(message));
+            playerService.sendMessage(player, message);
         });
     };
 

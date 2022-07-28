@@ -36,14 +36,15 @@ const wsServer = new WebSocketServer({
 const onJoinRoom = (player: PlayerConnection, data: JoinRoomData) => {
   if (player.roomId === data.roomId) return;
 
-  player.roomId = data.roomId;
   player.playerName = data.playerName;
 
   const room = roomService.getRoomById(data.roomId);
 
   if (!room) return;
 
-  room.addPlayer(player);
+  if (room.addPlayer(player)) {
+    player.roomId = data.roomId;
+  }
 };
 
 const onExitRoom = (player: PlayerConnection) => {
@@ -140,7 +141,7 @@ wsServer.on('connect', (connection) => {
 
   player.on('message', (message) => {
     const requestData: Message<any> = JSON.parse((<IUtf8Message>message).utf8Data);
-    console.log({ requestData });
+    console.log({ from: `playerId: ${player.playerId}`, to: 'Server', data: requestData });
 
     const { method, data } = requestData;
 

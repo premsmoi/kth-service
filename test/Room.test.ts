@@ -1,6 +1,7 @@
 import { Room } from '../src/Room';
 import { PlayerConnection } from '../src/services/playerService';
 import * as wordService from '../src/services/wordService';
+import * as playerService from '../src/services/playerService';
 import { BasePlayerData, EndRoundData, Message, PlayerStatus, RejectRequestData, StartRoundData, SyncRoomData, UpdatePlayerStatusData } from '../types';
 
 const mockPlayer = (playerId: string) => {
@@ -48,29 +49,30 @@ describe('Class Room', () => {
     test('Function addPlayer should reject request if room is full', () => {
         room.maxPlayer = 4;
 
+        jest.spyOn(playerService, 'sendMessage');
+
         for (let i=1; i<=room.maxPlayer; i++) {
             const player = mockPlayer(`p${i}`);
 
-            jest.spyOn(player, 'sendUTF');
-
             room.addPlayer(player as any);
 
-            expect(player.sendUTF).not.toHaveBeenCalledWith(
-                expect.objectContaining<Message<RejectRequestData>>({ method: 'REJECT_REQUEST' })
+            expect(playerService.sendMessage).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.not.objectContaining<Message<RejectRequestData>>({ method: 'REJECT_REQUEST' })
             );
         }
 
-        const newPlayer = mockPlayer('p7');
-
-        jest.spyOn(newPlayer, 'sendUTF');
+        const newPlayer = mockPlayer('newPlayer');
 
         room.addPlayer(newPlayer as any);
 
-        expect(newPlayer.sendUTF).toHaveBeenCalledWith(
+        expect(playerService.sendMessage).toHaveBeenCalledWith(
+            expect.anything(),
             expect.objectContaining<Message<RejectRequestData>>({ method: 'REJECT_REQUEST' })
         );
-        expect(newPlayer.sendUTF).not.toHaveBeenCalledWith(
-            expect.objectContaining<Message<BasePlayerData>>({ method: 'ADD_PLAYER' })
+        expect(playerService.sendMessage).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.not.objectContaining<Message<BasePlayerData>>({ method: 'ADD_PLAYER' })
         );
     });
 
@@ -212,10 +214,13 @@ describe('Class Room', () => {
     test('Function syncDataTo should work correctly', () => {
         const p1 = mockPlayer('p1');
 
-        jest.spyOn(p1, 'sendUTF');
+        jest.spyOn(playerService, 'sendMessage');
 
         room.syncDataTo(p1 as any);
 
-        expect(p1.sendUTF).toHaveBeenCalledTimes(1);
+        expect(playerService.sendMessage).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining<Message<SyncRoomData>>({ method: 'SYNC_ROOM_DATA' })
+        )
     });
 });
