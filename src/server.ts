@@ -8,6 +8,8 @@ import * as roomService from './services/roomService';
 import * as wordService from './services/wordService';
 import { BasePlayerData, GuessWordData, JoinRoomData, Message, Method, UpdateRoomSettingData } from '../types/index';
 
+const port = process.env.PORT || 8080;
+
 wordService.readFile();
 
 const defaultRoom: Room = new Room(5, 120);
@@ -20,8 +22,8 @@ const server = https.createServer({
   passphrase: 'premsmoi',
 });
 
-server.listen(process.env.PORT || 8080, function() {
-    console.log((new Date()) + ' Server is listening on port 8080');
+server.listen(port, function() {
+    console.log((new Date()) + ' Server is listening on port ' + port);
 });
 
 const wsServer = new WebSocketServer({
