@@ -1,5 +1,5 @@
 import { IUtf8Message, server as WebSocketServer } from 'websocket';
-import * as https from 'https';
+import * as http from 'http';
 import * as uuid from 'uuid';
 import fs from 'fs';
 import { Room } from './Room';
@@ -16,10 +16,10 @@ const defaultRoom: Room = new Room(5, 120);
 
 roomService.addRoom(defaultRoom);
 
-const server = https.createServer({
-  cert: fs.readFileSync('./cert.pem'),
-  key: fs.readFileSync('./key.pem'),
-  passphrase: 'premsmoi',
+const server = http.createServer({
+  // cert: fs.readFileSync('./cert.pem'),
+  // key: fs.readFileSync('./key.pem'),
+  // passphrase: 'premsmoi',
 });
 
 server.listen(port, function() {
