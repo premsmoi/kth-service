@@ -25,6 +25,8 @@ COPY --from=builder /app/dist/* ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/words.txt ./words.txt
+COPY --from=builder /app/cert.pem ./cert.pem
+COPY --from=builder /app/key.pem ./key.pem
 
 USER kth-user
 

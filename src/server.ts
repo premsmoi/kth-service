@@ -1,6 +1,7 @@
 import { IUtf8Message, server as WebSocketServer } from 'websocket';
-import * as http from 'http';
+import * as https from 'https';
 import * as uuid from 'uuid';
+import fs from 'fs';
 import { Room } from './Room';
 import { photoUrl, PlayerConnection } from './services/playerService';
 import * as roomService from './services/roomService';
@@ -11,12 +12,12 @@ wordService.readFile();
 
 const defaultRoom: Room = new Room(5, 120);
 
-roomService.addRoom(defaultRoom)
+roomService.addRoom(defaultRoom);
 
-const server = http.createServer(function(request, response) {
-    console.log((new Date()) + ' Received request for ' + request.url);
-    response.writeHead(404);
-    response.end();
+const server = https.createServer({
+  cert: fs.readFileSync('./cert.pem'),
+  key: fs.readFileSync('./key.pem'),
+  passphrase: 'premsmoi',
 });
 
 server.listen(8080, function() {
