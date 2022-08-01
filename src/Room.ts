@@ -1,12 +1,12 @@
 import { BasePlayerData, EndRoundData, Message, PlayerStatusMapping, RejectRequestData, RoomData, ScoreData, StartRoundData, SyncRoomData, UpdatePlayerStatusData, UpdateRoomSettingData } from "../types/index";
-import { PlayerConnection } from "./services/playerService";
 import * as playerService from './services/playerService';
+import * as webPubSubService from './services/webPubSubService';
 import * as wordService from './services/wordService';
 
 export class Room implements RoomData {
     id: string;
     host: string = '';
-    players: PlayerConnection[] = [];
+    players: string[] = [];
     currentRound: number = 0;
     totalRound: number;
     remainingTime: number;
@@ -26,7 +26,7 @@ export class Room implements RoomData {
         this.remainingTime = limitTime;
     };
 
-    addPlayer = (player: PlayerConnection) => {
+    addPlayer = (playerId: string) => {
         if (this.players.length === this.maxPlayer) {
             const message: Message<RejectRequestData> = {
                 method: 'REJECT_REQUEST',
@@ -34,28 +34,34 @@ export class Room implements RoomData {
                     reason: `The room is full. Max player number is ${this.maxPlayer}.`
                 }
             };
-
-            playerService.sendMessage(player, message);
+            
+            webPubSubService.serviceClient.sendToUser(playerId, message);
             return false;
         }
 
         if (!this.host) {
-            this.host = player.playerId;
+            this.host = playerId;
         }
 
-        this.players.push(player);
+        this.players.push(playerId);
+
+        const player = playerService.getPlayerById(playerId);
+
+        if (!player) return;
 
         const message: Message<BasePlayerData> = {
             method: 'ADD_PLAYER',
             data: {
-                playerId: player.playerId,
-                playerName: player.playerName,
-                playerAvatarUrl: player.playerAvatarUrl,
+                playerId: player.getId(),
+                playerName: player.getName(),
+                playerAvatarUrl: player.getAvatarUrl(),
             }
         };
 
+        webPubSubService
+
         this.broadcastMessage(message);
-        this.syncDataTo(player);
+        this.syncDataTo(playerId);
 
         return true;
     };
@@ -65,8 +71,8 @@ export class Room implements RoomData {
     };
 
     removePlayer = (playerId: string) => {
-        this.players = this.players.filter(player => player.playerId !== playerId);
-        this.host = this.players[0].playerId;
+        this.players = this.players.filter(id => id !== playerId);
+        this.host = this.players[0];
 
         const message: Message<BasePlayerData> = {
             method: 'REMOVE_PLAYER',
@@ -106,7 +112,7 @@ export class Room implements RoomData {
         this.updateGuessingPlayer();
     };
 
-    syncDataTo = (player: PlayerConnection) => {
+    syncDataTo = (playerId: string) => {
         const players = this.players.map(playerService.toBasePlayerData);
         const message: Message<SyncRoomData> = {
             method: 'SYNC_ROOM_DATA',
@@ -120,11 +126,11 @@ export class Room implements RoomData {
             }
         };
 
-        playerService.sendMessage(player, message);
+        webPubSubService.serviceClient.sendToUser(playerId, message);
     };
 
     eliminatePlayer = (playerId: string) => {
-        const player = this.players.find(p => p.playerId === playerId);
+        const player = this.players.find(id => id === playerId);
 
         if (!player) return;
 
@@ -155,8 +161,8 @@ export class Room implements RoomData {
     };
 
     broadcastMessage = (message: Message<any>) => {
-        this.players.forEach(player => {
-            playerService.sendMessage(player, message);
+        this.players.forEach(playerId => {
+            webPubSubService.serviceClient.sendToUser(playerId, message);
         });
     };
 
@@ -178,12 +184,12 @@ export class Room implements RoomData {
         this.isPlaying = true;
         this.currentWords = {};
 
-        this.players.forEach(player => {
+        this.players.forEach(playerId => {
             const word = wordService.randomWord();
 
-            this.currentWords[player.playerId] = word;
-            this.currentPlayerStatus[player.playerId] = 'PLAYING';
-            this.scores[this.currentRound - 1][player.playerId] = 0;
+            this.currentWords[playerId] = word;
+            this.currentPlayerStatus[playerId] = 'PLAYING';
+            this.scores[this.currentRound - 1][playerId] = 0;
         });
 
         this.remainingTime = this.limitTime;
