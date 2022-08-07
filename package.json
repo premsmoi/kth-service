@@ -8,7 +8,7 @@
     "dev": "rollup -c -w",
     "image": "docker run -dp 8080:8080 kth-service-image",
     "push-image": "docker tag kth-service-image kthservice.azurecr.io/kth-service && docker push kthservice.azurecr.io/kth-service",
-    "start": "node ./dist/server.js",
+    "start": "PROD=true && node ./dist/server.js",
     "test": "jest"
   },
   "author": "",
