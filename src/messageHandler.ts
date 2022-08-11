@@ -44,7 +44,7 @@ const onJoinRoom = (player: Player, data: JoinRoomData) => {
   const onEliminatePlayer = (player: Player, data: BasePlayerData) => {
     const room = roomService.getRoomById(player.getRoomId());
     
-    room?.eliminatePlayer(data.playerId);
+    room?.eliminatePlayer(player.getId(), data.playerId);
   };
   
   const onUpdateRoomSetting = (player: Player, data: UpdateRoomSettingData) => {

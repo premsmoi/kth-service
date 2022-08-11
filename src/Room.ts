@@ -132,13 +132,10 @@ export class Room implements RoomData {
         webPubSubService.serviceClient.sendToUser(playerId, message);
     };
 
-    eliminatePlayer = (playerId: string) => {
-        const player = this.players.find(id => id === playerId);
+    eliminatePlayer = (actor: string, target: string) => {
+        this.currentPlayerStatus[target] = 'ELIMINATED';
 
-        if (!player) return;
-
-        this.currentPlayerStatus[playerId] = 'ELIMINATED';
-
+        this.addScore(actor, 1);
         this.broadcastPlayerStatus();
 
         const remainingPlayerCount = Object.values(this.currentPlayerStatus).filter((status) => status === 'PLAYING').length;
