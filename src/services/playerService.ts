@@ -1,19 +1,33 @@
 import { connection as Connection } from 'websocket';
-import { BasePlayerData, Message, Player } from '../../types/index';
+import { BasePlayerData } from '../../types/index';
+import { Player } from '../Player';
 
 export const photoUrl = 'https://assets.pokemon.com/assets/cms2/img/pokedex/full/{id}.png';
 
+export const players: Player[] = [];
+
 export interface PlayerConnection extends Connection, Player { }
 
-export const sendMessage = (player: PlayerConnection, message: Message<any>) => {
-    console.log({ from: 'Server', to: `playerId: ${player.playerId}`, data: message });
-    player.sendUTF(JSON.stringify(message));
+export const addPlayer = (playerId: string) => {
+    const player = new Player(playerId);
+
+    players.push(player);
+
+    return player;
 }
 
-export const toBasePlayerData = (player: Player): BasePlayerData => {
+export const getPlayerById = (playerId: string) => {
+    return players.find(player => player.getId() === playerId);
+}
+
+export const toBasePlayerData = (playerId: string): BasePlayerData => {
+    const player = getPlayerById(playerId);
+
+    if (!player) return { playerId };
+
     return {
-        playerId: player.playerId,
-        playerName: player.playerName,
-        playerAvatarUrl: player.playerAvatarUrl,
+        playerId: player.getId(),
+        playerName: player.getName(),
+        playerAvatarUrl: player.getAvatarUrl(),
     };
 };

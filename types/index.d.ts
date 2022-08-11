@@ -7,13 +7,6 @@ export type Method = RoomMethod | PlayerMethod | GameMethod;
 export type PlayerStatusMapping = Record<string, PlayerStatus>;
 export type ScoreData = Record<string, number>[];
 
-export interface Player {
-  playerId: string;
-  roomId: string;
-  playerName: string;
-  playerAvatarUrl: string;
-}
-
 export interface RoomData {
   id: string;
   host: string;
