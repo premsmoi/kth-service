@@ -82,6 +82,10 @@ export class Room implements RoomData {
         };
 
         this.broadcastMessage(message);
+
+        if (this.players.length === 0) {
+            this.reset();
+        }
     };
 
     updateSetting = (totalRound: number, limitTime: number) => {
@@ -175,6 +179,7 @@ export class Room implements RoomData {
             };
     
             this.broadcastMessage(endGameMessage);
+            this.reset();
 
             return;
         }
@@ -257,4 +262,15 @@ export class Room implements RoomData {
             this.isPlaying = false;
         }
     };
+
+    reset = () => {
+        this.remainingTime = this.limitTime;
+        this.isPlaying = false;
+        this.isFinish = false;
+        this.currentRound = 0;
+        this.scores = [];
+        this.currentWords = {};
+        this.currentPlayerStatus = {};
+        this.timer = null;
+    }
 }
