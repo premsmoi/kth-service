@@ -59,9 +59,7 @@ export class Room implements RoomData {
             }
         };
 
-        webPubSubService
-
-        this.broadcastMessage(message);
+        this.broadcastMessage(message, [playerId]);
         this.syncDataTo(playerId);
 
         return true;
@@ -165,8 +163,10 @@ export class Room implements RoomData {
         this.broadcastMessage(message);
     };
 
-    broadcastMessage = (message: Message<any>) => {
+    broadcastMessage = (message: Message<any>, ignoreList?: string[]) => {
         this.players.forEach(playerId => {
+            if (ignoreList?.includes(playerId)) return;
+
             webPubSubService.serviceClient.sendToUser(playerId, message);
         });
     };
