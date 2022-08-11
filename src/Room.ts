@@ -1,5 +1,6 @@
 import { BasePlayerData, EndRoundData, Message, PlayerStatusMapping, RejectRequestData, RoomData, ScoreData, StartRoundData, SyncRoomData, UpdatePlayerStatusData, UpdateRoomSettingData } from "../types/index";
 import * as playerService from './services/playerService';
+import * as roomService from "./services/roomService";
 import * as webPubSubService from './services/webPubSubService';
 import * as wordService from './services/wordService';
 
@@ -272,5 +273,7 @@ export class Room implements RoomData {
         this.currentWords = {};
         this.currentPlayerStatus = {};
         this.timer = null;
+        this.totalRound = roomService.defaultTotalRound;
+        this.limitTime = roomService.defaultLimitTime;
     }
 }

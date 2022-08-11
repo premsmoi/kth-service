@@ -19,7 +19,7 @@ let server: http.Server | https.Server;
 
 wordService.readFile();
 
-const defaultRoom: Room = new Room(5, 120);
+const defaultRoom: Room = new Room(roomService.defaultTotalRound, roomService.defaultLimitTime);
 
 roomService.addRoom(defaultRoom);
 

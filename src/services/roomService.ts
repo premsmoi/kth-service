@@ -1,5 +1,8 @@
 import { Room } from "../Room";
 
+export const defaultTotalRound = 5;
+export const defaultLimitTime = 120;
+
 export const rooms: Room[] = [];
 
 export const getRoomById = (roomId: string) => {
