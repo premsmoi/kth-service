@@ -271,8 +271,8 @@ export class Room implements RoomData {
         this.scores = [];
         this.currentWords = {};
         this.currentPlayerStatus = {};
-        this.timer = null;
         this.totalRound = roomService.defaultTotalRound;
         this.limitTime = roomService.defaultLimitTime;
+        clearInterval(this.timer);
     }
 }
